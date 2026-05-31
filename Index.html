@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lokatsiya Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0e1520;
+    --border: #1e2d42;
+    --accent: #00e5ff;
+    --accent2: #ff3d6b;
+    --text: #c8daf0;
+    --muted: #4a6280;
+    --green: #00ff88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* animated grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .ping-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 6px;
+    animation: ping 1.5s infinite;
+  }
+  @keyframes ping {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+  }
+  .tab-btn:hover:not(.active) {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .card-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  /* FORM */
+  .field { margin-bottom: 16px; }
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-secondary:hover { background: rgba(0,229,255,0.1); }
+  .btn-danger {
+    background: var(--accent2);
+    color: #fff;
+  }
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+
+  /* LINK BOX */
+  .link-box {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 16px;
+    word-break: break-all;
+  }
+  .link-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--accent);
+    line-height: 1.4;
+  }
+  .copy-btn {
+    flex-shrink: 0;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .copy-btn:hover { opacity: 0.8; }
+
+  /* LOCATION CARDS */
+  .loc-list { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+
+  .loc-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .loc-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .loc-coords {
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+  .loc-time {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .loc-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  /* TRACKER PAGE */
+  .tracker-hero {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .tracker-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .tracker-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(20px, 5vw, 36px);
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .tracker-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 380px;
+    margin: 0 auto 32px;
+  }
+
+  /* STATUS BADGE */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-green { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+  .badge-red { background: rgba(255,61,107,0.12); color: var(--accent2); border: 1px solid rgba(255,61,107,0.3); }
+  .badge-blue { background: rgba(0,229,255,0.12); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }
+
+  /* MAP LINK */
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(0,229,255,0.3);
+    padding-bottom: 1px;
+    transition: opacity 0.2s;
+  }
+  .map-link:hover { opacity: 0.7; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .alert-info { background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); color: var(--accent); }
+  .alert-warn { background: rgba(255,165,0,0.08); border: 1px solid rgba(255,165,0,0.2); color: #ffab40; }
+
+  /* REFRESH */
+  .refresh-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .count-badge {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .success-flash {
+    animation: flashGreen 0.4s ease;
+  }
+  @keyframes flashGreen {
+    0% { background: rgba(0,255,136,0.2); }
+    100% { background: var(--bg); }
+  }
+
+  @media (max-width: 480px) {
+    .loc-card { grid-template-columns: 1fr; }
+    .loc-actions { justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+  <!-- ═══ HEADER ═══ -->
+  <header>
+    <div class="logo">📡 LocTrack</div>
+    <div class="subtitle"><span class="ping-dot"></span>Real-time Lokatsiya Tracker</div>
+  </header>
+
+  <!-- ═══ TABS ═══ -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('owner')">🎯 Mening Paneliim</button>
+    <button class="tab-btn" onclick="showTab('share')">🔗 Link Yaratish</button>
+    <button class="tab-btn" onclick="showTab('tracker')">📍 Tracker (Link)</button>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- TAB 1: OWNER PANEL                -->
+  <!-- ══════════════════════════════════ -->
+  <div class="panel active" id="panel-owner">
+
+    <div class="card">
+      <div class="card-title">👤 Mening ID'im</div>
+      <div class="alert alert-info">
+        Bu ID orqali siz link yaratasiz va boshqalarning lokatsiyasini ko'rasiz. Uni saqlang!
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div id="myIdDisplay" style="font-family:'Space Mono';font-size:18px;color:var(--accent);font-weight:700;letter-spacing:2px;"></div>
+        <button class="btn btn-secondary btn-sm" onclick="regenerateId()">🔄 Yangilash</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 Olingan Lokatsiyalar</div>
+      <div class="refresh-bar">
+        <span class="count-badge" id="locCount">0 ta lokatsiya</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadLocations()">🔄 Yangilash</button>
+      </div>
+      <div id="locList">
+        <div class="empty">
+          <div class="empty-icon">🌐</div>
+          <div>Hali hech kim link bosmagan</div>
+          <div style="margin-top:6px;font-size:11px;">Link yuboring va bu yerda ko'rasiz</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- TAB 2: LINK CREATOR               -->
+  <!-- ══════════════════════════════════ -->
+  <div class="panel" id="panel-share">
+
+    <div class="card">
+      <div class="card-title">🔗 Tracking Link Yaratish</div>
+      <div class="alert alert-warn">
+        ⚠️ Bu link bosgan odam lokatsiya ruxsatini bersa, siz ko'rasiz.
+      </div>
+
+      <div class="field">
+        <label>Sizning Tracker ID'ingiz</label>
+        <input type="text" id="ownerIdInput" placeholder="ID avtomatik to'ldiriladi..." readonly>
+      </div>
+
+      <div class="field">
+        <label>Link Nomi (ixtiyoriy)</label>
+        <input type="text" id="linkLabel" placeholder="Masalan: Ali, Do'stim, Xonim...">
+      </div>
+
+      <button class="btn btn-primary" onclick="generateLink()">⚡ Link Yaratish</button>
+
+      <div id="generatedLinkBox" style="display:none;">
+        <div class="link-box">
+          <span class="link-text" id="generatedLink"></span>
+          <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);">
+          ✅ Bu linkni WhatsApp, Telegram yoki SMS orqali yuboring
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 Qanday Ishlaydi?</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="color:var(--accent);font-size:20px;flex-shrink:0;">1️⃣</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Link Yarating</div>
+            <div style="font-size:12px;color:var(--muted);">Yuqoridagi tugmani bosib link oling</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="color:var(--accent);font-size:20px;flex-shrink:0;">2️⃣</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Do'stingizga Yuboring</div>
+            <div style="font-size:12px;color:var(--muted);">WhatsApp, Telegram yoki SMS orqali</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="color:var(--accent);font-size:20px;flex-shrink:0;">3️⃣</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Ular Bosganda Ko'rasiz</div>
+            <div style="font-size:12px;color:var(--muted);">"Mening Panelim"da lokatsiya paydo bo'ladi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- TAB 3: TRACKER (what receiver sees)-->
+  <!-- ══════════════════════════════════ -->
+  <div class="panel" id="panel-tracker">
+
+    <div class="card">
+      <div class="card-title">📡 Tracker Sahifasi</div>
+      <div class="alert alert-warn">
+        Bu — boshqalar link bosganda ko'radigan sahifa. Siz uni ko'rsatmoqchi bo'lsangiz, quyidagi tugmani bosing yoki link orqali testing qiling.
+      </div>
+
+      <div class="tracker-hero">
+        <div class="tracker-icon">📍</div>
+        <div class="tracker-title">Lokatsiyangizni Ulashing</div>
+        <div class="tracker-desc">
+          Do'stingiz sizning qayerdaligingizni bilmoqchi. Quyidagi tugmani bosib lokatsiyangizni ulashing.
+        </div>
+        <button class="btn btn-primary" style="max-width:300px;margin:0 auto;" onclick="shareLocation()">
+          📍 Lokatsiyamni Ulashish
+        </button>
+        <div id="trackerStatus" style="margin-top:20px;"></div>
+      </div>
+
+    </div>
+
+    <div class="card" id="trackerTestCard">
+      <div class="card-title">🧪 Test Uchun</div>
+      <div class="field">
+        <label>Tracker ID (kimga yuborish)</label>
+        <input type="text" id="testOwnerId" placeholder="Do'stingizning ID'ini kiriting...">
+      </div>
+      <div class="field">
+        <label>Sizning Ismingiz</label>
+        <input type="text" id="testSenderName" placeholder="Masalan: Ali">
+      </div>
+      <button class="btn btn-primary" onclick="shareLocation()">📍 Lokatsiyamni Yuborish</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// STORAGE KEY
+const LOCS_KEY = 'loctrack_locations';
+const ID_KEY   = 'loctrack_owner_id';
+
+// ═══════════════════════════════════════════
+// INIT
+let myId = localStorage.getItem(ID_KEY) || generateId();
+
+function generateId() {
+  const id = 'TRK-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  localStorage.setItem(ID_KEY, id);
+  return id;
+}
+
+function regenerateId() {
+  if (!confirm('ID yangilansiz? Eski linklaringiz ishlamay qoladi.')) return;
+  localStorage.removeItem(ID_KEY);
+  myId = generateId();
+  initUI();
+}
+
+function initUI() {
+  document.getElementById('myIdDisplay').textContent = myId;
+  document.getElementById('ownerIdInput').value = myId;
+  loadLocations();
+  checkUrlParams();
+}
+
+// ═══════════════════════════════════════════
+// TABS
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// GENERATE LINK
+function generateLink() {
+  const label = document.getElementById('linkLabel').value.trim() || 'Mehmon';
+  const url = `${window.location.href.split('?')[0]}?owner=${myId}&label=${encodeURIComponent(label)}`;
+  document.getElementById('generatedLink').textContent = url;
+  document.getElementById('generatedLinkBox').style.display = 'block';
+}
+
+function copyLink() {
+  const link = document.getElementById('generatedLink').textContent;
+  const btn = document.querySelector('.copy-btn');
+
+  // Create a temp textarea and copy from it
+  const ta = document.createElement('textarea');
+  ta.value = link;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+
+  try {
+    document.execCommand('copy');
+    btn.textContent = '✅ Copied!';
+    btn.style.background = 'var(--green)';
+  } catch(e) {
+    // fallback: show the link so user can copy manually
+    prompt('Linkni qo\'lda nusxalang:', link);
+  }
+
+  document.body.removeChild(ta);
+  setTimeout(() => {
+    btn.textContent = '📋 Copy';
+    btn.style.background = 'var(--accent)';
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════
+// CHECK URL PARAMS (auto-open tracker tab if link clicked)
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const owner = params.get('owner');
+  const label = params.get('label');
+
+  if (owner) {
+    // Switch to tracker tab
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-tracker').classList.add('active');
+    document.querySelectorAll('.tab-btn')[2].classList.add('active');
+
+    document.getElementById('testOwnerId').value = owner;
+    if (label) document.getElementById('testSenderName').value = decodeURIComponent(label);
+  }
+}
+
+// ═══════════════════════════════════════════
+// SHARE LOCATION (receiver side)
+function shareLocation() {
+  const ownerId = document.getElementById('testOwnerId').value.trim();
+  const sender  = document.getElementById('testSenderName').value.trim() || 'Noma\'lum';
+  const statusEl = document.getElementById('trackerStatus');
+
+  if (!ownerId) {
+    statusEl.innerHTML = '<span class="badge badge-red">❌ Tracker ID kiritilmagan</span>';
+    return;
+  }
+
+  statusEl.innerHTML = '<span class="badge badge-blue">⏳ Lokatsiya aniqlanmoqda...</span>';
+
+  if (!navigator.geolocation) {
+    statusEl.innerHTML = '<span class="badge badge-red">❌ Brauzer geolokatsiyani qo\'llab-quvvatlamaydi</span>';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const data = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracy: Math.round(pos.coords.accuracy),
+        sender: sender,
+        time: new Date().toISOString(),
+        id: Date.now(),
+        address: ''
+      };
+
+      statusEl.innerHTML = `<span class="badge badge-blue">⏳ Manzil aniqlanmoqda...</span>`;
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`)
+        .then(r => r.json())
+        .then(geo => {
+          const a = geo.address || {};
+          data.address = [
+            a.city || a.town || a.village || a.county || '',
+            a.state || a.province || '',
+            a.country || ''
+          ].filter(Boolean).join(', ');
+        })
+        .catch(() => {})
+        .finally(() => {
+          const key = LOCS_KEY + '_' + ownerId;
+          let locs = [];
+          try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+          locs.unshift(data);
+          if (locs.length > 50) locs = locs.slice(0, 50);
+          localStorage.setItem(key, JSON.stringify(locs));
+
+          statusEl.innerHTML = `
+            <div class="badge badge-green">✅ Lokatsiya yuborildi!</div>
+            <div style="margin-top:12px;font-size:12px;color:var(--muted);">
+              📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
+              ${data.address ? `🏙️ ${data.address}<br>` : ''}
+              🎯 Aniqlik: ±${data.accuracy}m
+            </div>
+          `;
+        });
+    },
+    (err) => {
+      let msg = 'Noma\'lum xato';
+      if (err.code === 1) msg = 'Lokatsiya ruxsati berilmadi. Brauzer sozlamalarini tekshiring.';
+      if (err.code === 2) msg = 'Lokatsiya aniqlanmadi. GPS\'ni yoqing.';
+      if (err.code === 3) msg = 'Vaqt tugadi. Qayta urinib ko\'ring.';
+      statusEl.innerHTML = `<span class="badge badge-red">❌ ${msg}</span>`;
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+}
+
+// ═══════════════════════════════════════════
+// LOAD LOCATIONS (owner side)
+function loadLocations() {
+  const key = LOCS_KEY + '_' + myId;
+  let locs = [];
+  try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+
+  const listEl = document.getElementById('locList');
+  const countEl = document.getElementById('locCount');
+
+  countEl.textContent = locs.length + ' ta lokatsiya';
+
+  if (locs.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🌐</div>
+        <div>Hali hech kim link bosmagan</div>
+        <div style="margin-top:6px;font-size:11px;">Link yuboring va bu yerda ko'rasiz</div>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = '<div class="loc-list">' + locs.map(loc => {
+    const date = new Date(loc.time);
+    const timeStr = date.toLocaleString('uz-UZ', {
+      day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+    });
+    const mapsUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+
+    return `
+      <div class="loc-card" id="loc-${loc.id}">
+        <div>
+          <div class="loc-name">👤 ${escHtml(loc.sender)}</div>
+          ${loc.address ? `<div style="font-size:12px;color:var(--green);margin-bottom:4px;">🏙️ ${escHtml(loc.address)}</div>` : ''}
+          <div class="loc-coords">📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;">
+            <span class="loc-time">🕐 ${timeStr}</span>
+            ${loc.accuracy ? `<span class="badge badge-blue" style="font-size:10px;padding:3px 8px;">±${loc.accuracy}m</span>` : ''}
+          </div>
+        </div>
+        <div class="loc-actions">
+          <a href="${mapsUrl}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;">🗺️ Xarita</a>
+          <button class="btn btn-sm" style="background:rgba(255,61,107,0.15);color:var(--accent2);border:1px solid rgba(255,61,107,0.3);" onclick="deleteLoc(${loc.id})">🗑️</button>
+        </div>
+      </div>`;
+  }).join('') + '</div>';
+}
+
+function deleteLoc(id) {
+  const key = LOCS_KEY + '_' + myId;
+  let locs = [];
+  try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  locs = locs.filter(l => l.id !== id);
+  localStorage.setItem(key, JSON.stringify(locs));
+  loadLocations();
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════
+// AUTO REFRESH every 10 seconds
+setInterval(() => {
+  const ownerPanel = document.getElementById('panel-owner');
+  if (ownerPanel.classList.contains('active')) {
+    loadLocations();
+  }
+}, 10000);
+
+// ═══════════════════════════════════════════
+// START
+initUI();
+</script>
+</body>
+</html>
