@@ -282,8 +282,10 @@ async function delLoc(id) {
 }
 
 // ═══ LIVE TRACKING ═══
-let trackInterval = null;
+let watchId = null;
 let trackCount = 0;
+let lastSent = 0;
+const SEND_INTERVAL = 30000; // 30 soniya
 const SENDER_NAME = () => decodeURIComponent(new URLSearchParams(window.location.search).get('label') || 'Noma\'lum');
 
 function startTracking() {
@@ -294,78 +296,91 @@ function startTracking() {
   document.getElementById('startBtn').style.display = 'none';
   document.getElementById('stopBtn').style.display = 'flex';
   document.getElementById('recIcon').textContent = '🟢';
-  document.getElementById('recStatus').innerHTML = '<span class="badge bb">⏳ Birinchi lokatsiya aniqlanmoqda...</span>';
+  document.getElementById('recStatus').innerHTML = '<span class="badge bb">⏳ GPS aniqlanmoqda... (1 marta ruxsat bering)</span>';
 
-  // Darhol yuborish
-  sendOneLoc();
-  // Har 30 soniyada
-  trackInterval = setInterval(sendOneLoc, 30000);
+  // watchPosition — 1 marta ruxsat, doimiy kuzatadi
+  watchId = navigator.geolocation.watchPosition(
+    async pos => {
+      const now = Date.now();
+      // Faqat har 30 soniyada serverga yuborish
+      if (now - lastSent < SEND_INTERVAL && lastSent !== 0) {
+        const left = Math.round((SEND_INTERVAL - (now - lastSent)) / 1000);
+        document.getElementById('recStatus').innerHTML = `
+          <div class="badge bg">🟢 Jonli kuzatuv • ${trackCount} ta yuborildi</div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted);">⏱️ Keyingi yangilanish: ${left}s</div>
+        `;
+        return;
+      }
+      lastSent = now;
+      await sendToServer(pos);
+    },
+    err => {
+      let m = 'GPS ruxsati berilmadi';
+      if (err.code === 2) m = 'GPS aniqlanmadi';
+      if (err.code === 3) m = 'GPS vaqt tugadi';
+      document.getElementById('recStatus').innerHTML = `<span class="badge br">❌ ${m}</span>`;
+      stopTracking();
+    },
+    { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+  );
 }
 
 function stopTracking() {
-  if (trackInterval) { clearInterval(trackInterval); trackInterval = null; }
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
   document.getElementById('startBtn').style.display = 'flex';
   document.getElementById('stopBtn').style.display = 'none';
   document.getElementById('recIcon').textContent = '📍';
   document.getElementById('recStatus').innerHTML = '<span class="badge br">⏹️ Kuzatuv to\'xtatildi</span>';
 }
 
-async function sendOneLoc() {
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const data = {
-      id: 'L' + Date.now(),
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-      accuracy: Math.round(pos.coords.accuracy),
-      sender: SENDER_NAME(),
-      time: new Date().toISOString(),
-      address: '',
-      live: true
-    };
+async function sendToServer(pos) {
+  const data = {
+    id: 'L' + Date.now(),
+    lat: pos.coords.latitude,
+    lng: pos.coords.longitude,
+    accuracy: Math.round(pos.coords.accuracy),
+    sender: SENDER_NAME(),
+    time: new Date().toISOString(),
+    address: '',
+    live: true
+  };
 
-    try {
-      const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`);
-      const gd = await geo.json();
-      const a = gd.address || {};
-      data.address = [a.city||a.town||a.village||a.county||'', a.state||a.province||'', a.country||''].filter(Boolean).join(', ');
-    } catch {}
+  try {
+    const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`);
+    const gd = await geo.json();
+    const a = gd.address || {};
+    data.address = [a.city||a.town||a.village||a.county||'', a.state||a.province||'', a.country||''].filter(Boolean).join(', ');
+  } catch {}
 
-    try {
-      const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
-      const d = await r.json();
-      let locs = d.record.locations || [];
-      // Eski live yozuvlarni o'chirish (faqat bu sender uchun)
-      locs = locs.filter(l => !(l.live && l.sender === data.sender));
-      locs.push(data);
-      if (locs.length > 200) locs.splice(0, locs.length - 200);
+  try {
+    const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+    const d = await r.json();
+    let locs = d.record.locations || [];
+    locs = locs.filter(l => !(l.live && l.sender === data.sender));
+    locs.push(data);
+    if (locs.length > 200) locs.splice(0, locs.length - 200);
 
-      await fetch(API_URL, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-        body: JSON.stringify({ locations: locs })
-      });
+    await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify({ locations: locs })
+    });
 
-      trackCount++;
-      const now = new Date().toLocaleTimeString('uz-UZ', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      document.getElementById('recStatus').innerHTML = `
-        <div class="badge bg" style="margin-bottom:10px;">🟢 Jonli • ${trackCount} marta yangilandi</div>
-        <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.8;">
-          📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
-          ${data.address ? `🏙️ ${data.address}<br>` : ''}
-          🎯 Aniqlik: ±${data.accuracy}m<br>
-          🕐 ${now}
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--muted);">Har 30 soniyada yangilanadi</div>
-      `;
-    } catch {
-      document.getElementById('recStatus').innerHTML = '<span class="badge br">❌ Internet yo\'q, qayta urinilmoqda...</span>';
-    }
-  }, err => {
-    let m = 'GPS ruxsati berilmadi';
-    if (err.code===2) m = 'GPS aniqlanmadi';
-    document.getElementById('recStatus').innerHTML = `<span class="badge br">❌ ${m}</span>`;
-    stopTracking();
-  }, { enableHighAccuracy: true, timeout: 15000 });
+    trackCount++;
+    const t = new Date().toLocaleTimeString('uz-UZ', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('recStatus').innerHTML = `
+      <div class="badge bg" style="margin-bottom:8px;">🟢 Jonli • ${trackCount} marta yangilandi</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-top:8px;">
+        📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
+        ${data.address ? `🏙️ ${data.address}<br>` : ''}
+        🎯 Aniqlik: ±${data.accuracy}m<br>
+        🕐 ${t}
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted);">Sahifa ochiq turguncha yangilanadi</div>
+    `;
+  } catch {
+    document.getElementById('recStatus').innerHTML = '<span class="badge br">❌ Internet yo\'q, qayta urinilmoqda...</span>';
+  }
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
