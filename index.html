@@ -17,545 +17,336 @@
     --green: #00ff88;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Space Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  body { font-family: 'Space Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
   }
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 32px 20px 60px;
-  }
-  .logo {
-    font-family: 'Unbounded', sans-serif;
-    font-size: clamp(26px, 6vw, 44px);
-    font-weight: 900;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-align: center;
-    margin-bottom: 6px;
-  }
-  .subtitle {
-    text-align: center;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 36px;
-  }
-  .ping { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: ping 1.5s infinite; }
+  .wrap { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 28px 16px 60px; }
+  .logo { font-family: 'Unbounded', sans-serif; font-size: clamp(24px,6vw,42px); font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 30px; }
+  .ping { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 5px; animation: ping 1.5s infinite; }
   @keyframes ping { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.6)} }
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-  }
-  .card-title {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  label {
-    display: block;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 7px;
-  }
-  input[type="text"] {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 11px 14px;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    outline: none;
-    transition: border-color .2s;
-    margin-bottom: 14px;
-  }
-  input[type="text"]:focus { border-color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 14px; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .ct { font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  label { display: block; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  input[type="text"], input[type="password"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 11px 13px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 13px; outline: none; transition: border-color .2s; margin-bottom: 12px; }
+  input:focus { border-color: var(--accent); }
   input::placeholder { color: var(--muted); }
 
-  .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 7px;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-primary { background: var(--accent); color: var(--bg); }
-  .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-danger { background: var(--accent2); color: #fff; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 12px; border: none; border-radius: 7px; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .btn-p { background: var(--accent); color: var(--bg); }
+  .btn-p:hover { opacity: .85; }
+  .btn-p:active { transform: scale(.98); }
 
-  .link-box {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    background: var(--bg);
-    border: 1px solid var(--accent);
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin-top: 12px;
-  }
-  .link-text {
-    flex: 1;
-    font-size: 11px;
-    color: var(--accent);
-    word-break: break-all;
-    line-height: 1.5;
-  }
-  .copy-btn {
-    flex-shrink: 0;
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    border-radius: 4px;
-    padding: 7px 12px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-  }
+  .link-box { display: flex; gap: 8px; align-items: center; background: var(--bg); border: 1px solid var(--accent); border-radius: 6px; padding: 10px 12px; margin-top: 12px; }
+  .link-text { flex: 1; font-size: 11px; color: var(--accent); word-break: break-all; line-height: 1.5; }
+  .cbtn { flex-shrink: 0; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; padding: 7px 11px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; cursor: pointer; }
 
-  .loc-item {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 10px;
-    animation: fadeIn .3s ease;
-  }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  .loc-name { font-family:'Unbounded',sans-serif; font-size:13px; font-weight:600; margin-bottom:5px; }
-  .loc-addr { font-size:12px; color:var(--green); margin-bottom:4px; }
-  .loc-coords { font-size:11px; color:var(--accent); margin-bottom:4px; }
-  .loc-time { font-size:10px; color:var(--muted); }
-  .loc-actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
-  .btn-sm {
-    padding: 6px 12px;
-    border-radius: 5px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-  }
-  .btn-map { background: rgba(0,229,255,.15); color: var(--accent); border: 1px solid rgba(0,229,255,.3); }
-  .btn-del { background: rgba(255,61,107,.15); color: var(--accent2); border: 1px solid rgba(255,61,107,.3); }
+  .loc-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px; margin-bottom: 9px; animation: fi .3s ease; }
+  @keyframes fi { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .ln { font-family:'Unbounded',sans-serif; font-size:12px; font-weight:600; margin-bottom:4px; }
+  .la { font-size:12px; color:var(--green); margin-bottom:3px; }
+  .lc { font-size:11px; color:var(--accent); margin-bottom:3px; }
+  .lt { font-size:10px; color:var(--muted); }
+  .lact { display:flex; gap:6px; margin-top:9px; flex-wrap:wrap; }
+  .bsm { padding:5px 11px; border-radius:5px; font-family:'Space Mono',monospace; font-size:11px; font-weight:700; cursor:pointer; border:none; text-decoration:none; display:inline-flex; align-items:center; }
+  .bmap { background:rgba(0,229,255,.12); color:var(--accent); border:1px solid rgba(0,229,255,.25); }
+  .bdel { background:rgba(255,61,107,.12); color:var(--accent2); border:1px solid rgba(255,61,107,.25); }
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 11px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .5px;
-  }
-  .badge-green { background: rgba(0,255,136,.1); color: var(--green); border: 1px solid rgba(0,255,136,.3); }
-  .badge-blue { background: rgba(0,229,255,.1); color: var(--accent); border: 1px solid rgba(0,229,255,.3); }
-  .badge-red { background: rgba(255,61,107,.1); color: var(--accent2); border: 1px solid rgba(255,61,107,.3); }
+  .badge { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px; font-size:11px; font-weight:700; }
+  .bg { background:rgba(0,255,136,.1); color:var(--green); border:1px solid rgba(0,255,136,.3); }
+  .bb { background:rgba(0,229,255,.1); color:var(--accent); border:1px solid rgba(0,229,255,.3); }
+  .br { background:rgba(255,61,107,.1); color:var(--accent2); border:1px solid rgba(255,61,107,.3); }
 
-  .empty { text-align:center; padding:30px; color:var(--muted); font-size:12px; }
-  .empty-icon { font-size:36px; margin-bottom:10px; }
+  .empty { text-align:center; padding:28px; color:var(--muted); font-size:12px; }
+  .rrow { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .rbtN { background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:5px; padding:5px 10px; font-family:'Space Mono',monospace; font-size:11px; cursor:pointer; }
+  .rbtN:hover { border-color:var(--accent); color:var(--accent); }
 
-  .secret-input {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(8,12,16,.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 20px;
-  }
-  .secret-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px 24px;
-    width: 100%;
-    max-width: 360px;
-    text-align: center;
-  }
-  .secret-box h2 {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 18px;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .secret-box p { color: var(--muted); font-size: 12px; margin-bottom: 20px; line-height: 1.6; }
+  /* PASSWORD SCREEN */
+  .pwscreen { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .pwbox { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:30px 22px; width:100%; max-width:340px; text-align:center; position:relative; overflow:hidden; }
+  .pwbox::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .pwtitle { font-family:'Unbounded',sans-serif; font-size:20px; font-weight:900; margin-bottom:6px; background:linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .pwdesc { color:var(--muted); font-size:11px; margin-bottom:20px; line-height:1.6; }
 
-  /* RECEIVER PAGE */
-  .receiver {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .receiver-box {
-    text-align: center;
-    max-width: 340px;
-    width: 100%;
-  }
-  .receiver-icon { font-size: 72px; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-  .receiver-title {
-    font-family: 'Unbounded', sans-serif;
-    font-size: clamp(18px, 5vw, 28px);
-    font-weight: 900;
-    margin-bottom: 12px;
-  }
-  .receiver-desc { color: var(--muted); font-size: 12px; line-height: 1.7; margin-bottom: 28px; }
-  .receiver-sender { color: var(--accent); font-weight: 700; }
-
-  .refresh-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  .count-text { font-size:11px; color:var(--muted); }
-  .refresh-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-  }
-  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* PASSWORD */
-  #passwordScreen { display: flex; }
-  #ownerPanel { display: none; }
-  #receiverPanel { display: none; }
+  /* RECEIVER */
+  .recscreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .recbox { text-align:center; max-width:320px; width:100%; }
+  .ricon { font-size:68px; animation:flt 3s ease-in-out infinite; margin-bottom:18px; }
+  @keyframes flt { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .rtitle { font-family:'Unbounded',sans-serif; font-size:clamp(16px,5vw,26px); font-weight:900; margin-bottom:10px; }
+  .rdesc { color:var(--muted); font-size:12px; line-height:1.7; margin-bottom:24px; }
+  .rsender { color:var(--accent); font-weight:700; }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════ PASSWORD SCREEN ══════════════════════ -->
-<div id="passwordScreen" class="secret-input">
-  <div class="secret-box">
-    <h2>📡 LocTrack</h2>
-    <p>Bu sizning shaxsiy lokatsiya tracker panelingiz. Kirish uchun parolni kiriting.</p>
-    <input type="text" id="passwordInput" placeholder="Parolni kiriting..." style="text-align:center;margin-bottom:12px;">
-    <button class="btn btn-primary" onclick="checkPassword()">🔑 Kirish</button>
-    <div id="pwError" style="margin-top:10px;font-size:11px;color:var(--accent2);display:none;">❌ Noto'g'ri parol</div>
-    <div style="margin-top:16px;font-size:10px;color:var(--muted);">Parolni bilmasangiz, do'stingiz sizga link yuborgan bo'lishi kerak</div>
+<!-- PASSWORD -->
+<div class="pwscreen" id="pwScreen">
+  <div class="pwbox">
+    <div class="pwtitle">📡 LocTrack</div>
+    <div class="pwdesc">Shaxsiy lokatsiya panelingiz. Kirish uchun parol kiriting.</div>
+    <input type="password" id="pwInput" placeholder="Parol...">
+    <button class="btn btn-p" onclick="login()">🔑 Kirish</button>
+    <div id="pwErr" style="display:none;margin-top:10px;font-size:11px;color:var(--accent2);">❌ Noto'g'ri parol</div>
   </div>
 </div>
 
-<!-- ══════════════════════ OWNER PANEL ══════════════════════ -->
-<div id="ownerPanel">
-  <div class="container">
+<!-- OWNER PANEL -->
+<div id="ownerPanel" style="display:none;">
+  <div class="wrap">
     <div class="logo">📡 LocTrack</div>
-    <div class="subtitle"><span class="ping"></span>Sizning Panelingiz</div>
+    <div class="sub"><span class="ping"></span>Sizning Panelingiz</div>
 
-    <!-- Link yaratish -->
     <div class="card">
-      <div class="card-title">🔗 Tracking Link Yaratish</div>
-      <label>Do'stingizning ismi</label>
-      <input type="text" id="senderName" placeholder="Masalan: Ali, Dilnoza...">
-      <button class="btn btn-primary" onclick="generateLink()">⚡ Link Yaratish</button>
-      <div id="linkBox" style="display:none">
+      <div class="ct">🔗 Link Yaratish</div>
+      <label>Do'stingiz ismi</label>
+      <input type="text" id="nameInput" placeholder="Masalan: Ali, Dilnoza...">
+      <button class="btn btn-p" onclick="genLink()">⚡ Link Yaratish</button>
+      <div id="linkBox" style="display:none;">
         <div class="link-box">
-          <span class="link-text" id="generatedLink"></span>
-          <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
+          <span class="link-text" id="linkText"></span>
+          <button class="cbtn" onclick="copyLink()">📋</button>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--muted);">✅ Telegram yoki WhatsApp ga yuboring</div>
+        <div style="margin-top:7px;font-size:11px;color:var(--muted);">✅ Telegram yoki WhatsApp ga yuboring</div>
       </div>
     </div>
 
-    <!-- Lokatsiyalar -->
     <div class="card">
-      <div class="card-title">📥 Olingan Lokatsiyalar</div>
-      <div class="refresh-row">
-        <span class="count-text" id="locCount">0 ta</span>
-        <button class="refresh-btn" onclick="loadLocs()">🔄 Yangilash</button>
+      <div class="ct">📥 Lokatsiyalar</div>
+      <div class="rrow">
+        <span id="locCnt" style="font-size:11px;color:var(--muted);">0 ta</span>
+        <button class="rbtN" onclick="loadLocs()">🔄 Yangilash</button>
       </div>
-      <div id="locList"></div>
+      <div id="locList"><div class="empty">⏳ Yuklanmoqda...</div></div>
     </div>
 
-    <!-- Parol o'zgartirish -->
     <div class="card">
-      <div class="card-title">🔐 Parol</div>
+      <div class="ct">🔐 Parol</div>
       <label>Yangi Parol</label>
-      <input type="text" id="newPassword" placeholder="Yangi parol kiriting...">
-      <button class="btn btn-primary" onclick="changePassword()">💾 Saqlash</button>
-      <div id="pwSuccess" style="display:none;margin-top:10px;font-size:11px;color:var(--green);">✅ Parol saqlandi!</div>
+      <input type="text" id="newPw" placeholder="Yangi parol...">
+      <button class="btn btn-p" onclick="changePw()">💾 Saqlash</button>
+      <div id="pwOk" style="display:none;margin-top:8px;font-size:11px;color:var(--green);">✅ Saqlandi!</div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════ RECEIVER PANEL ══════════════════════ -->
-<div id="receiverPanel">
-  <div class="receiver">
-    <div class="receiver-box">
-      <div class="receiver-icon">📍</div>
-      <div class="receiver-title">Lokatsiyangizni Ulashing</div>
-      <div class="receiver-desc">
-        <span class="receiver-sender" id="senderLabel"></span> sizning qayerdaligingizni bilmoqchi. Quyidagi tugmani bosing.
-      </div>
-      <button class="btn btn-primary" onclick="sendLocation()" style="max-width:300px;margin:0 auto 20px;">
-        📍 Lokatsiyamni Yuborish
-      </button>
-      <div id="receiverStatus"></div>
+<!-- RECEIVER -->
+<div id="recPanel" style="display:none;">
+  <div class="recscreen">
+    <div class="recbox">
+      <div class="ricon">📍</div>
+      <div class="rtitle">Lokatsiyangizni Ulashing</div>
+      <div class="rdesc"><span class="rsender" id="recSender"></span> sizning qayerdaligingizni bilmoqchi.</div>
+      <button class="btn btn-p" style="max-width:280px;margin:0 auto 16px;" onclick="sendLoc()">📍 Lokatsiyamni Yuborish</button>
+      <div id="recStatus"></div>
     </div>
   </div>
 </div>
 
 <script>
-const PASS_KEY = 'loctrack_password';
-const LOCS_KEY = 'loctrack_locs';
+// ═══ CONFIG ═══
+const BIN_ID = '6a1d20e821f9ee59d2a3ab1c';
+const API_KEY = '$2a$10$utcZkXccFLM77/vZp3Ogke8/ZbIEDFerbVgcm0y9aC45RQPeprPLu';
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const PASS_KEY = 'lct_pass';
 const DEFAULT_PASS = 'admin123';
-const BASE_URL = window.location.href.split('?')[0];
+const BASE = window.location.href.split('?')[0];
 
 // ═══ INIT ═══
 function init() {
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode');
-  const owner = params.get('owner');
-  const label = params.get('label');
-
-  if (mode === 'track' && owner) {
-    // RECEIVER MODE
-    document.getElementById('passwordScreen').style.display = 'none';
-    document.getElementById('receiverPanel').style.display = 'block';
-    const lbl = label ? decodeURIComponent(label) : 'Do\'stingiz';
-    document.getElementById('senderLabel').textContent = lbl;
-    // store owner id for sending
-    window._ownerId = owner;
-    window._senderLabel = lbl;
-  } else {
-    // OWNER MODE - show password screen
-    document.getElementById('passwordScreen').style.display = 'flex';
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('mode') === 'track') {
+    document.getElementById('pwScreen').style.display = 'none';
+    document.getElementById('recPanel').style.display = 'block';
+    document.getElementById('recSender').textContent = decodeURIComponent(p.get('label') || 'Do\'stingiz');
+    window._owner = p.get('owner') || '';
   }
 }
 
-// ═══ PASSWORD ═══
-function checkPassword() {
-  const input = document.getElementById('passwordInput').value.trim();
+// ═══ LOGIN ═══
+function login() {
+  const pw = document.getElementById('pwInput').value;
   const saved = localStorage.getItem(PASS_KEY) || DEFAULT_PASS;
-  if (input === saved) {
-    document.getElementById('passwordScreen').style.display = 'none';
+  if (pw === saved) {
+    document.getElementById('pwScreen').style.display = 'none';
     document.getElementById('ownerPanel').style.display = 'block';
     loadLocs();
   } else {
-    document.getElementById('pwError').style.display = 'block';
-    setTimeout(() => document.getElementById('pwError').style.display = 'none', 2000);
+    const e = document.getElementById('pwErr');
+    e.style.display = 'block';
+    setTimeout(() => e.style.display = 'none', 2000);
   }
 }
+document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 
-function changePassword() {
-  const np = document.getElementById('newPassword').value.trim();
-  if (!np) return;
-  localStorage.setItem(PASS_KEY, np);
-  document.getElementById('pwSuccess').style.display = 'block';
-  document.getElementById('newPassword').value = '';
-  setTimeout(() => document.getElementById('pwSuccess').style.display = 'none', 2000);
+function changePw() {
+  const v = document.getElementById('newPw').value.trim();
+  if (!v) return;
+  localStorage.setItem(PASS_KEY, v);
+  document.getElementById('newPw').value = '';
+  const ok = document.getElementById('pwOk');
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 2000);
 }
 
 // ═══ GENERATE LINK ═══
-function generateLink() {
-  const name = document.getElementById('senderName').value.trim() || 'Do\'stim';
-  // Use a simple owner token
-  const ownerId = localStorage.getItem('loctrack_ownerid') || (() => {
-    const id = 'OWN' + Math.random().toString(36).substr(2,8).toUpperCase();
-    localStorage.setItem('loctrack_ownerid', id);
+function genLink() {
+  const name = document.getElementById('nameInput').value.trim() || 'Do\'stim';
+  const oid = localStorage.getItem('lct_oid') || (() => {
+    const id = 'O' + Date.now();
+    localStorage.setItem('lct_oid', id);
     return id;
   })();
-  const link = `${BASE_URL}?mode=track&owner=${ownerId}&label=${encodeURIComponent(name)}`;
-  document.getElementById('generatedLink').textContent = link;
+  const link = `${BASE}?mode=track&owner=${oid}&label=${encodeURIComponent(name)}`;
+  document.getElementById('linkText').textContent = link;
   document.getElementById('linkBox').style.display = 'block';
 }
 
 function copyLink() {
-  const link = document.getElementById('generatedLink').textContent;
+  const t = document.getElementById('linkText').textContent;
   const ta = document.createElement('textarea');
-  ta.value = link;
+  ta.value = t;
   ta.style.cssText = 'position:fixed;opacity:0';
   document.body.appendChild(ta);
   ta.select();
   try {
     document.execCommand('copy');
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✅ OK!';
-    btn.style.background = 'var(--green)';
-    setTimeout(() => { btn.textContent = '📋 Copy'; btn.style.background = 'var(--accent)'; }, 2000);
-  } catch(e) {
-    prompt('Nusxalang:', link);
-  }
+    const b = document.querySelector('.cbtn');
+    b.textContent = '✅';
+    setTimeout(() => b.textContent = '📋', 2000);
+  } catch { prompt('Nusxalang:', t); }
   document.body.removeChild(ta);
 }
 
 // ═══ LOAD LOCATIONS ═══
-function loadLocs() {
-  const ownerId = localStorage.getItem('loctrack_ownerid');
-  if (!ownerId) {
-    document.getElementById('locList').innerHTML = '<div class="empty"><div class="empty-icon">🌐</div><div>Avval link yarating</div></div>';
-    return;
+async function loadLocs() {
+  try {
+    const r = await fetch(API_URL + '/latest', {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const d = await r.json();
+    const locs = (d.record && d.record.locations) ? d.record.locations : [];
+    renderLocs(locs);
+  } catch(e) {
+    document.getElementById('locList').innerHTML = '<div class="empty">❌ Yuklab bo\'lmadi</div>';
   }
-  const key = LOCS_KEY + '_' + ownerId;
-  let locs = [];
-  try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
-  
-  document.getElementById('locCount').textContent = locs.length + ' ta lokatsiya';
+}
 
+function renderLocs(locs) {
+  document.getElementById('locCnt').textContent = locs.length + ' ta lokatsiya';
   if (!locs.length) {
-    document.getElementById('locList').innerHTML = '<div class="empty"><div class="empty-icon">🌐</div><div>Hali hech kim link bosmagan</div></div>';
+    document.getElementById('locList').innerHTML = '<div class="empty">🌐 Hali hech kim link bosmagan</div>';
     return;
   }
-
-  document.getElementById('locList').innerHTML = locs.map(loc => {
+  document.getElementById('locList').innerHTML = locs.slice().reverse().map(loc => {
     const t = new Date(loc.time).toLocaleString('uz-UZ', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    const mapsUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
-    return `<div class="loc-item" id="l${loc.id}">
-      <div class="loc-name">👤 ${esc(loc.sender)}</div>
-      ${loc.address ? `<div class="loc-addr">🏙️ ${esc(loc.address)}</div>` : ''}
-      <div class="loc-coords">📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}</div>
-      <div class="loc-time">🕐 ${t} ${loc.accuracy ? `· ±${loc.accuracy}m` : ''}</div>
-      <div class="loc-actions">
-        <a href="${mapsUrl}" target="_blank" class="btn-sm btn-map">🗺️ Xarita</a>
-        <button onclick="delLoc(${loc.id})" class="btn-sm btn-del">🗑️ O'chirish</button>
+    const mUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+    return `<div class="loc-item">
+      <div class="ln">👤 ${esc(loc.sender)}</div>
+      ${loc.address ? `<div class="la">🏙️ ${esc(loc.address)}</div>` : ''}
+      <div class="lc">📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}</div>
+      <div class="lt">🕐 ${t}${loc.accuracy ? ` · ±${loc.accuracy}m` : ''}</div>
+      <div class="lact">
+        <a href="${mUrl}" target="_blank" class="bsm bmap">🗺️ Xarita</a>
+        <button onclick="delLoc('${loc.id}')" class="bsm bdel">🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function delLoc(id) {
-  const ownerId = localStorage.getItem('loctrack_ownerid');
-  const key = LOCS_KEY + '_' + ownerId;
-  let locs = [];
-  try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
-  locs = locs.filter(l => l.id !== id);
-  localStorage.setItem(key, JSON.stringify(locs));
-  loadLocs();
+async function delLoc(id) {
+  try {
+    const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+    const d = await r.json();
+    let locs = d.record.locations || [];
+    locs = locs.filter(l => l.id !== id);
+    await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify({ locations: locs })
+    });
+    renderLocs(locs);
+    document.getElementById('locCnt').textContent = locs.length + ' ta lokatsiya';
+  } catch(e) {}
 }
 
-// ═══ SEND LOCATION (receiver side) ═══
-function sendLocation() {
-  const statusEl = document.getElementById('receiverStatus');
-  const ownerId = window._ownerId;
-  const sender = window._senderLabel;
-
+// ═══ SEND LOCATION (receiver) ═══
+async function sendLoc() {
+  const st = document.getElementById('recStatus');
   if (!navigator.geolocation) {
-    statusEl.innerHTML = '<span class="badge badge-red">❌ GPS qo\'llab-quvvatlanmaydi</span>';
+    st.innerHTML = '<span class="badge br">❌ GPS qo\'llab-quvvatlanmaydi</span>';
     return;
   }
+  st.innerHTML = '<span class="badge bb">⏳ Lokatsiya aniqlanmoqda...</span>';
 
-  statusEl.innerHTML = '<span class="badge badge-blue">⏳ Lokatsiya aniqlanmoqda...</span>';
-
-  navigator.geolocation.getCurrentPosition(pos => {
+  navigator.geolocation.getCurrentPosition(async pos => {
     const data = {
+      id: 'L' + Date.now(),
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
       accuracy: Math.round(pos.coords.accuracy),
-      sender: sender,
+      sender: decodeURIComponent(new URLSearchParams(window.location.search).get('label') || 'Noma\'lum'),
       time: new Date().toISOString(),
-      id: Date.now(),
       address: ''
     };
 
-    statusEl.innerHTML = '<span class="badge badge-blue">⏳ Manzil aniqlanmoqda...</span>';
+    st.innerHTML = '<span class="badge bb">⏳ Manzil aniqlanmoqda...</span>';
 
-    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`)
-      .then(r => r.json())
-      .then(geo => {
-        const a = geo.address || {};
-        data.address = [a.city||a.town||a.village||a.county||'', a.state||a.province||'', a.country||''].filter(Boolean).join(', ');
-      })
-      .catch(() => {})
-      .finally(() => {
-        const key = LOCS_KEY + '_' + ownerId;
-        let locs = [];
-        try { locs = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
-        locs.unshift(data);
-        if (locs.length > 100) locs = locs.slice(0, 100);
-        localStorage.setItem(key, JSON.stringify(locs));
+    try {
+      const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`);
+      const gd = await geo.json();
+      const a = gd.address || {};
+      data.address = [a.city||a.town||a.village||a.county||'', a.state||a.province||'', a.country||''].filter(Boolean).join(', ');
+    } catch {}
 
-        statusEl.innerHTML = `
-          <div class="badge badge-green" style="margin-bottom:12px;">✅ Yuborildi!</div>
-          <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.7;">
-            📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
-            ${data.address ? `🏙️ ${data.address}<br>` : ''}
-            🎯 Aniqlik: ±${data.accuracy}m
-          </div>
-          <div style="margin-top:14px;font-size:11px;color:var(--muted);">Endi sahifani yopishingiz mumkin</div>
-        `;
+    try {
+      // Get current data
+      const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+      const d = await r.json();
+      const locs = d.record.locations || [];
+      locs.push(data);
+      if (locs.length > 200) locs.splice(0, locs.length - 200);
+
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+        body: JSON.stringify({ locations: locs })
       });
+
+      st.innerHTML = `
+        <div class="badge bg" style="margin-bottom:10px;">✅ Yuborildi!</div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.8;">
+          📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
+          ${data.address ? `🏙️ ${data.address}<br>` : ''}
+          🎯 Aniqlik: ±${data.accuracy}m
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--muted);">Sahifani yopishingiz mumkin</div>
+      `;
+    } catch {
+      st.innerHTML = '<span class="badge br">❌ Yuborib bo\'lmadi. Internet bor?</span>';
+    }
   }, err => {
-    let msg = 'Lokatsiya ruxsati berilmadi';
-    if (err.code === 2) msg = 'GPS aniqlanmadi';
-    if (err.code === 3) msg = 'Vaqt tugadi';
-    statusEl.innerHTML = `<span class="badge badge-red">❌ ${msg}</span>`;
+    let m = 'Ruxsat berilmadi';
+    if (err.code===2) m = 'GPS aniqlanmadi';
+    if (err.code===3) m = 'Vaqt tugadi';
+    st.innerHTML = `<span class="badge br">❌ ${m}</span>`;
   }, { enableHighAccuracy: true, timeout: 15000 });
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// Parol input enter
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('passwordScreen').style.display !== 'none') checkPassword();
-  }
-});
-
-// Auto refresh
-setInterval(() => {
-  if (document.getElementById('ownerPanel').style.display !== 'none') loadLocs();
-}, 15000);
+// Auto refresh 20s
+setInterval(() => { if (document.getElementById('ownerPanel').style.display !== 'none') loadLocs(); }, 20000);
 
 init();
 </script>
