@@ -144,10 +144,11 @@
 <div id="recPanel" style="display:none;">
   <div class="recscreen">
     <div class="recbox">
-      <div class="ricon">📍</div>
-      <div class="rtitle">Lokatsiyangizni Ulashing</div>
-      <div class="rdesc"><span class="rsender" id="recSender"></span> sizning qayerdaligingizni bilmoqchi.</div>
-      <button class="btn btn-p" style="max-width:280px;margin:0 auto 16px;" onclick="sendLoc()">📍 Lokatsiyamni Yuborish</button>
+      <div class="ricon" id="recIcon">📍</div>
+      <div class="rtitle">Jonli Kuzatuv</div>
+      <div class="rdesc"><span class="rsender" id="recSender"></span> sizning joylashuvingizni kuzatmoqchi.</div>
+      <button class="btn btn-p" style="max-width:280px;margin:0 auto 16px;" id="startBtn" onclick="startTracking()">▶️ Kuzatuvni Boshlash</button>
+      <button class="btn" style="max-width:280px;margin:0 auto 16px;background:var(--accent2);color:#fff;display:none;" id="stopBtn" onclick="stopTracking()">⏹️ To'xtatish</button>
       <div id="recStatus"></div>
     </div>
   </div>
@@ -280,27 +281,47 @@ async function delLoc(id) {
   } catch(e) {}
 }
 
-// ═══ SEND LOCATION (receiver) ═══
-async function sendLoc() {
-  const st = document.getElementById('recStatus');
+// ═══ LIVE TRACKING ═══
+let trackInterval = null;
+let trackCount = 0;
+const SENDER_NAME = () => decodeURIComponent(new URLSearchParams(window.location.search).get('label') || 'Noma\'lum');
+
+function startTracking() {
   if (!navigator.geolocation) {
-    st.innerHTML = '<span class="badge br">❌ GPS qo\'llab-quvvatlanmaydi</span>';
+    document.getElementById('recStatus').innerHTML = '<span class="badge br">❌ GPS qo\'llab-quvvatlanmaydi</span>';
     return;
   }
-  st.innerHTML = '<span class="badge bb">⏳ Lokatsiya aniqlanmoqda...</span>';
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('stopBtn').style.display = 'flex';
+  document.getElementById('recIcon').textContent = '🟢';
+  document.getElementById('recStatus').innerHTML = '<span class="badge bb">⏳ Birinchi lokatsiya aniqlanmoqda...</span>';
 
+  // Darhol yuborish
+  sendOneLoc();
+  // Har 30 soniyada
+  trackInterval = setInterval(sendOneLoc, 30000);
+}
+
+function stopTracking() {
+  if (trackInterval) { clearInterval(trackInterval); trackInterval = null; }
+  document.getElementById('startBtn').style.display = 'flex';
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('recIcon').textContent = '📍';
+  document.getElementById('recStatus').innerHTML = '<span class="badge br">⏹️ Kuzatuv to\'xtatildi</span>';
+}
+
+async function sendOneLoc() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const data = {
       id: 'L' + Date.now(),
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
       accuracy: Math.round(pos.coords.accuracy),
-      sender: decodeURIComponent(new URLSearchParams(window.location.search).get('label') || 'Noma\'lum'),
+      sender: SENDER_NAME(),
       time: new Date().toISOString(),
-      address: ''
+      address: '',
+      live: true
     };
-
-    st.innerHTML = '<span class="badge bb">⏳ Manzil aniqlanmoqda...</span>';
 
     try {
       const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${data.lat}&lon=${data.lng}&format=json&accept-language=uz`);
@@ -310,10 +331,11 @@ async function sendLoc() {
     } catch {}
 
     try {
-      // Get current data
       const r = await fetch(API_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
       const d = await r.json();
-      const locs = d.record.locations || [];
+      let locs = d.record.locations || [];
+      // Eski live yozuvlarni o'chirish (faqat bu sender uchun)
+      locs = locs.filter(l => !(l.live && l.sender === data.sender));
       locs.push(data);
       if (locs.length > 200) locs.splice(0, locs.length - 200);
 
@@ -323,23 +345,26 @@ async function sendLoc() {
         body: JSON.stringify({ locations: locs })
       });
 
-      st.innerHTML = `
-        <div class="badge bg" style="margin-bottom:10px;">✅ Yuborildi!</div>
+      trackCount++;
+      const now = new Date().toLocaleTimeString('uz-UZ', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      document.getElementById('recStatus').innerHTML = `
+        <div class="badge bg" style="margin-bottom:10px;">🟢 Jonli • ${trackCount} marta yangilandi</div>
         <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.8;">
           📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>
           ${data.address ? `🏙️ ${data.address}<br>` : ''}
-          🎯 Aniqlik: ±${data.accuracy}m
+          🎯 Aniqlik: ±${data.accuracy}m<br>
+          🕐 ${now}
         </div>
-        <div style="margin-top:12px;font-size:11px;color:var(--muted);">Sahifani yopishingiz mumkin</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);">Har 30 soniyada yangilanadi</div>
       `;
     } catch {
-      st.innerHTML = '<span class="badge br">❌ Yuborib bo\'lmadi. Internet bor?</span>';
+      document.getElementById('recStatus').innerHTML = '<span class="badge br">❌ Internet yo\'q, qayta urinilmoqda...</span>';
     }
   }, err => {
-    let m = 'Ruxsat berilmadi';
+    let m = 'GPS ruxsati berilmadi';
     if (err.code===2) m = 'GPS aniqlanmadi';
-    if (err.code===3) m = 'Vaqt tugadi';
-    st.innerHTML = `<span class="badge br">❌ ${m}</span>`;
+    document.getElementById('recStatus').innerHTML = `<span class="badge br">❌ ${m}</span>`;
+    stopTracking();
   }, { enableHighAccuracy: true, timeout: 15000 });
 }
 
